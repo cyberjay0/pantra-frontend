@@ -1770,7 +1770,7 @@ function RoleSelectionScreen({ onSelectRole }: { onSelectRole: (role: "rider" | 
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-10 blur-[60px]" style={{ background: "#05AFF2" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <img src="/pantra-logo.PNG" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain" }} />
+        <img src="/pantra-logo.PNG" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain", mixBlendMode: "multiply" }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>How would you like to use Pantra?</h1>
         <p className="text-sm font-semibold mb-10" style={{ color: C.muted }}>
@@ -1844,7 +1844,7 @@ function LoginScreen({ role, onLogin, onBack }: { role: "rider" | "driver", onLo
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-20 blur-[60px]" style={{ background: "#7B3DF8" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <PantraLogo className="w-16 h-16 mb-8" />
+        <img src="/pantra-logo.PNG" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain", mixBlendMode: "multiply" }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>
           {isLogin 
