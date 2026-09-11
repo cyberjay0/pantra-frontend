@@ -1736,18 +1736,16 @@ const PantraLogo = ({ className = "w-24 h-24" }: { className?: string }) => (
 // ─── Landing Screen ───────────────────────────────────────────────────────────
 function LandingScreen({ onGetStarted }: { onGetStarted: () => void }) {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden" style={{ background: "#F9F8FF" }}>
-      {/* Background blobs for the clean gradient theme */}
-      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-30 blur-[80px]" style={{ background: "#05AFF2" }} />
-      <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full opacity-30 blur-[80px]" style={{ background: "#AF18D9" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-20 blur-[100px]" style={{ background: "#7B3DF8" }} />
+    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden" style={{ background: "#FFFFFF" }}>
 
       <div className="relative z-10 flex flex-col items-center flex-1 justify-center">
-        <PantraLogo className="w-32 h-32 mb-6 animate-fade-in" />
-        <h1 className="text-4xl font-black tracking-tight mb-2 animate-fade-in" style={{ color: C.ink }}>
-          PANTRA
-        </h1>
-        <p className="text-sm font-semibold text-center px-8 animate-fade-in" style={{ color: C.muted }}>
+        <img
+          src="/Pantra White.png"
+          alt="Pantra"
+          className="w-56 animate-fade-in"
+          style={{ objectFit: "contain" }}
+        />
+        <p className="text-sm font-semibold text-center px-8 mt-2 animate-fade-in" style={{ color: C.muted }}>
           The premium ride experience tailored for your comfort.
         </p>
       </div>
@@ -1772,7 +1770,7 @@ function RoleSelectionScreen({ onSelectRole }: { onSelectRole: (role: "rider" | 
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-10 blur-[60px]" style={{ background: "#05AFF2" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <PantraLogo className="w-16 h-16 mb-8" />
+        <img src="/Pantra White.png" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain" }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>How would you like to use Pantra?</h1>
         <p className="text-sm font-semibold mb-10" style={{ color: C.muted }}>
