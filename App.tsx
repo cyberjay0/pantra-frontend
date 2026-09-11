@@ -1801,6 +1801,46 @@ const PantraLogo = ({ className = "w-24 h-24" }: { className?: string }) => (
   </svg>
 )
 
+// ─── Transparent Logo (canvas strips white bg from PNG) ───────────────────
+function TransparentLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    if (!ctx) return
+
+    const img = new Image()
+    img.onload = () => {
+      canvas.width  = img.naturalWidth
+      canvas.height = img.naturalHeight
+      ctx.drawImage(img, 0, 0)
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const data = imageData.data
+
+      // Remove near-white pixels — threshold 235 on each channel
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i + 1], b = data[i + 2]
+        if (r > 235 && g > 235 && b > 235) {
+          data[i + 3] = 0 // fully transparent
+        }
+      }
+      ctx.putImageData(imageData, 0, 0)
+    }
+    img.src = '/pantra-logo.PNG'
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={className}
+      style={{ objectFit: 'contain', display: 'block', ...style }}
+    />
+  )
+}
+
 // ─── Skeleton Shimmer Block ──────────────────────────────────────────────────
 function Sk({ w, h, r = 12, style }: { w?: number | string; h: number; r?: number; style?: React.CSSProperties }) {
   return (
@@ -1913,11 +1953,8 @@ function LandingScreen({ onGetStarted }: { onGetStarted: () => void }) {
     <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden" style={{ background: "#FFFFFF" }}>
 
       <div className="relative z-10 flex flex-col items-center flex-1 justify-center">
-        <img
-          src="/pantra-logo.PNG"
-          alt="Pantra"
+        <TransparentLogo
           className="w-56 animate-fade-in"
-          style={{ objectFit: "contain" }}
         />
         <p className="text-sm font-semibold text-center px-8 mt-2 animate-fade-in" style={{ color: C.muted }}>
           The premium ride experience tailored for your comfort.
@@ -1944,9 +1981,7 @@ function RoleSelectionScreen({ onSelectRole }: { onSelectRole: (role: "rider" | 
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-10 blur-[60px]" style={{ background: "#05AFF2" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <div style={{ isolation: "isolate", background: "#FFFFFF", display: "inline-block", borderRadius: 12, marginBottom: 32 }}>
-          <img src="/pantra-logo.PNG" alt="Pantra" className="w-24" style={{ objectFit: "contain", mixBlendMode: "multiply", display: "block" }} />
-        </div>
+        <TransparentLogo className="w-24" style={{ marginBottom: 32 }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>How would you like to use Pantra?</h1>
         <p className="text-sm font-semibold mb-10" style={{ color: C.muted }}>
@@ -2020,9 +2055,7 @@ function LoginScreen({ role, onLogin, onBack }: { role: "rider" | "driver", onLo
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-20 blur-[60px]" style={{ background: "#7B3DF8" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <div style={{ isolation: "isolate", background: "#FFFFFF", display: "inline-block", borderRadius: 12, marginBottom: 32 }}>
-          <img src="/pantra-logo.PNG" alt="Pantra" className="w-24" style={{ objectFit: "contain", mixBlendMode: "multiply", display: "block" }} />
-        </div>
+        <TransparentLogo className="w-24" style={{ marginBottom: 32 }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>
           {isLogin 
