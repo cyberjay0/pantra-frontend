@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Screen = "home" | "drivers" | "locations" | "profile" | "gifts"
@@ -1733,6 +1733,112 @@ const PantraLogo = ({ className = "w-24 h-24" }: { className?: string }) => (
   </svg>
 )
 
+// ─── Skeleton Shimmer Block ──────────────────────────────────────────────────
+function Sk({ w, h, r = 12, style }: { w?: number | string; h: number; r?: number; style?: React.CSSProperties }) {
+  return (
+    <div
+      className="skeleton-shimmer"
+      style={{ width: w, height: h, borderRadius: r, flexShrink: 0, ...style }}
+    />
+  )
+}
+
+// ─── Role Selection Skeleton ──────────────────────────────────────────────────
+function RoleSelectionSkeleton() {
+  return (
+    <div className="w-full h-full flex flex-col page-enter" style={{ background: "#F9F8FF" }}>
+      <div className="px-6 pt-16 pb-8 flex-1 flex flex-col">
+        <Sk w={96} h={96} r={20} style={{ marginBottom: 32 }} />
+        <Sk w="72%" h={34} style={{ marginBottom: 10 }} />
+        <Sk w="48%" h={16} style={{ marginBottom: 40 }} />
+        <div className="flex flex-col gap-5 flex-1">
+          <Sk w="100%" h={144} r={24} />
+          <Sk w="100%" h={144} r={24} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Login Skeleton ───────────────────────────────────────────────────────────
+function LoginSkeleton() {
+  return (
+    <div className="w-full h-full flex flex-col page-enter" style={{ background: "#F9F8FF" }}>
+      <div className="px-6 pt-16 pb-8 flex-1 flex flex-col">
+        <Sk w={96} h={96} r={20} style={{ marginBottom: 32 }} />
+        <Sk w="60%" h={34} style={{ marginBottom: 10 }} />
+        <Sk w="52%" h={16} style={{ marginBottom: 24 }} />
+        <Sk w={100} h={18} style={{ marginBottom: 32 }} />
+        <div className="flex flex-col gap-4" style={{ flex: 1 }}>
+          <Sk w="100%" h={54} r={14} />
+          <Sk w="100%" h={54} r={14} />
+          <Sk w="100%" h={54} r={14} />
+        </div>
+        <Sk w="100%" h={54} r={14} style={{ marginTop: 24 }} />
+        <Sk w="55%" h={14} r={8} style={{ marginTop: 20, alignSelf: "center" }} />
+      </div>
+    </div>
+  )
+}
+
+// ─── Main App Skeleton ────────────────────────────────────────────────────────
+function MainAppSkeleton() {
+  return (
+    <div className="w-full h-full flex flex-col relative overflow-hidden page-enter">
+      {/* Map background */}
+      <div className="flex-1" style={{ background: "#EDEBF8" }}>
+        <svg viewBox="0 0 400 360" className="w-full h-full" style={{ opacity: 0.6 }}>
+          <g stroke="#D8D4EE" strokeWidth={16} fill="none">
+            <line x1="0" y1="170" x2="400" y2="170"/>
+            <line x1="200" y1="0" x2="200" y2="360"/>
+            <line x1="0" y1="80" x2="400" y2="80"/>
+            <line x1="0" y1="260" x2="400" y2="260"/>
+            <line x1="100" y1="0" x2="100" y2="360"/>
+            <line x1="300" y1="0" x2="300" y2="360"/>
+          </g>
+          <g fill="#E0DCF2" opacity={0.55}>
+            <rect x="108" y="90" width="82" height="70" rx="5"/>
+            <rect x="208" y="90" width="82" height="70" rx="5"/>
+            <rect x="108" y="178" width="82" height="72" rx="5"/>
+            <rect x="208" y="178" width="82" height="72" rx="5"/>
+            <rect x="12" y="12" width="78" height="58" rx="4"/>
+            <rect x="312" y="268" width="78" height="80" rx="4"/>
+          </g>
+        </svg>
+      </div>
+      {/* Search bar skeleton */}
+      <div className="absolute top-3 left-4 right-4" style={{ zIndex: 30 }}>
+        <div className="flex items-center gap-2.5">
+          <Sk w={40} h={40} r={999} />
+          <div className="flex-1"><Sk w="100%" h={40} r={999} /></div>
+          <Sk w={40} h={40} r={999} />
+        </div>
+      </div>
+      {/* Bottom sheet skeleton */}
+      <div
+        className="absolute bottom-0 left-0 right-0 rounded-t-3xl"
+        style={{ background: "white", height: 96, boxShadow: "0 -4px 32px rgba(13,10,26,0.12)", zIndex: 20 }}
+      >
+        <div className="flex flex-col items-center pt-3 pb-3">
+          <div style={{ width: 40, height: 4, borderRadius: 999, background: "#D8D4EE" }} />
+        </div>
+        <div className="px-5 flex items-center justify-between">
+          <Sk w={110} h={16} />
+          <div className="flex gap-2">
+            <Sk w={72} h={28} r={999} />
+            <Sk w={72} h={28} r={999} />
+            <Sk w={72} h={28} r={999} />
+          </div>
+        </div>
+      </div>
+      {/* Bottom nav skeleton */}
+      <div className="flex justify-center pb-5 pt-3" style={{ background: "transparent", zIndex: 50 }}>
+        <Sk w={260} h={52} r={999} />
+      </div>
+    </div>
+  )
+}
+
 // ─── Landing Screen ───────────────────────────────────────────────────────────
 function LandingScreen({ onGetStarted }: { onGetStarted: () => void }) {
   return (
@@ -1766,11 +1872,11 @@ function LandingScreen({ onGetStarted }: { onGetStarted: () => void }) {
 // ─── Role Selection Screen ────────────────────────────────────────────────────
 function RoleSelectionScreen({ onSelectRole }: { onSelectRole: (role: "rider" | "driver") => void }) {
   return (
-    <div className="w-full h-full flex flex-col bg-white relative overflow-hidden">
+    <div className="w-full h-full flex flex-col relative overflow-hidden" style={{ background: "#F9F8FF" }}>
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-10 blur-[60px]" style={{ background: "#05AFF2" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
-        <img src="/pantra-logo.PNG" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain", mixBlendMode: "darken" }} />
+        <img src="/pantra-logo.PNG" alt="Pantra" className="w-24 mb-8" style={{ objectFit: "contain", mixBlendMode: "multiply" }} />
         
         <h1 className="text-3xl font-black mb-2" style={{ color: C.ink }}>How would you like to use Pantra?</h1>
         <p className="text-sm font-semibold mb-10" style={{ color: C.muted }}>
@@ -1944,12 +2050,30 @@ function LoginScreen({ role, onLogin, onBack }: { role: "rider" | "driver", onLo
 }
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
+type AppPhase = "landing" | "loading_role" | "role_selection" | "loading_login" | "login" | "loading_main" | "main"
+
 export default function App() {
-  const [appPhase, setAppPhase] = useState<"landing" | "role_selection" | "login" | "main">("landing")
+  const [appPhase, setAppPhase] = useState<AppPhase>("landing")
   const [authRole, setAuthRole] = useState<"rider" | "driver">("rider")
   const [screen, setScreen] = useState<Screen>("home")
   const [navTab, setNavTab] = useState<NavTab>("home")
   const [selectedDestination, setSelectedDestination] = useState<string>("")
+
+  // Auto-advance loading states after realistic delays
+  useEffect(() => {
+    if (appPhase === "loading_role") {
+      const t = setTimeout(() => setAppPhase("role_selection"), 750)
+      return () => clearTimeout(t)
+    }
+    if (appPhase === "loading_login") {
+      const t = setTimeout(() => setAppPhase("login"), 650)
+      return () => clearTimeout(t)
+    }
+    if (appPhase === "loading_main") {
+      const t = setTimeout(() => setAppPhase("main"), 900)
+      return () => clearTimeout(t)
+    }
+  }, [appPhase])
 
   const navBg: Record<Screen, string> = {
     home: "transparent", drivers: "#FAF8FF",
@@ -1969,18 +2093,27 @@ export default function App() {
       className="w-full h-full flex flex-col overflow-hidden"
       style={{ background: "#F0ECFF", fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 430, margin: "0 auto" }}
     >
-      {appPhase === "landing" && <LandingScreen onGetStarted={() => setAppPhase("role_selection")} />}
+      {appPhase === "landing" && <LandingScreen onGetStarted={() => setAppPhase("loading_role")} />}
+
+      {appPhase === "loading_role"    && <RoleSelectionSkeleton />}
+      {appPhase === "loading_login"   && <LoginSkeleton />}
+      {appPhase === "loading_main"    && <MainAppSkeleton />}
+
       {appPhase === "role_selection" && (
-        <RoleSelectionScreen 
-          onSelectRole={(r) => { setAuthRole(r); setAppPhase("login"); }} 
-        />
+        <div className="page-enter w-full h-full flex flex-col">
+          <RoleSelectionScreen 
+            onSelectRole={(r) => { setAuthRole(r); setAppPhase("loading_login"); }} 
+          />
+        </div>
       )}
       {appPhase === "login" && (
-        <LoginScreen 
-          role={authRole} 
-          onLogin={() => setAppPhase("main")} 
-          onBack={() => setAppPhase("role_selection")}
-        />
+        <div className="page-enter w-full h-full flex flex-col">
+          <LoginScreen 
+            role={authRole} 
+            onLogin={() => setAppPhase("loading_main")} 
+            onBack={() => setAppPhase("role_selection")}
+          />
+        </div>
       )}
       
       {appPhase === "main" && (
