@@ -1977,7 +1977,7 @@ function LandingScreen({ onGetStarted }: { onGetStarted: () => void }) {
 // ─── Role Selection Screen ────────────────────────────────────────────────────
 function RoleSelectionScreen({ onSelectRole }: { onSelectRole: (role: "rider" | "driver") => void }) {
   return (
-    <div className="w-full h-full flex flex-col relative overflow-hidden" style={{ background: "#FFFFFF" }}>
+    <div className="w-full h-full flex flex-col relative overflow-y-auto" style={{ background: "#FFFFFF" }}>
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-10 blur-[60px]" style={{ background: "#05AFF2" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
@@ -2051,7 +2051,7 @@ function LoginScreen({ role, onLogin, onBack }: { role: "rider" | "driver", onLo
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-white relative overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-white relative overflow-y-auto">
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-20 blur-[60px]" style={{ background: "#7B3DF8" }} />
       
       <div className="px-6 pt-16 pb-8 relative z-10 flex-1 flex flex-col">
