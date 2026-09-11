@@ -4,9 +4,12 @@
 html,
 body,
 #root {
-  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
   font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  overflow: hidden;
 }
 
 * {
@@ -119,4 +122,26 @@ body,
 
 .page-enter {
   animation: fadeInUp 0.3s ease forwards;
+}
+
+/* Tab slide-in animations */
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.tab-enter-right {
+  animation: slideInFromRight 0.26s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.tab-enter-left {
+  animation: slideInFromLeft 0.26s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Safe area support for iPhone notch */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

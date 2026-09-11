@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Screen = "home" | "drivers" | "locations" | "profile" | "gifts"
@@ -188,6 +188,123 @@ const QUICK_PLACES = [
   { name: "Nok by Alara", area: "V.I.", eta: "5 min", emoji: "🍽" },
   { name: "Elegushi Beach", area: "Lekki", eta: "12 min", emoji: "🏖" },
 ]
+
+// \u2500\u2500\u2500 Swipeable Nearby Bottom Sheet \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+function NearbySheet({
+  sheetOpen,
+  setSheetOpen,
+  setSelectedDestination,
+  setSearchQuery,
+  setRideStatus,
+}: {
+  sheetOpen: boolean
+  setSheetOpen: (v: boolean | ((p: boolean) => boolean)) => void
+  setSelectedDestination: (v: string) => void
+  setSearchQuery: (v: string) => void
+  setRideStatus: (v: "idle" | "searching" | "confirmed") => void
+}) {
+  const COLLAPSED_H = 96
+  const EXPANDED_H  = 340
+  const touchStartY   = useRef(0)
+  const touchCurrentY = useRef(0)
+  const isDragging    = useRef(false)
+  const [dragDelta, setDragDelta]   = useState(0)
+  const [isSnapping, setIsSnapping] = useState(false)
+
+  const targetH = sheetOpen ? EXPANDED_H : COLLAPSED_H
+  const liveH   = Math.max(COLLAPSED_H, Math.min(EXPANDED_H, targetH - dragDelta))
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartY.current   = e.touches[0].clientY
+    touchCurrentY.current = e.touches[0].clientY
+    isDragging.current    = true
+    setIsSnapping(false)
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (!isDragging.current) return
+    touchCurrentY.current = e.touches[0].clientY
+    setDragDelta(touchCurrentY.current - touchStartY.current)
+  }
+  function onTouchEnd() {
+    if (!isDragging.current) return
+    isDragging.current = false
+    const delta = touchCurrentY.current - touchStartY.current
+    setIsSnapping(true)
+    setDragDelta(0)
+    if (delta < -55)     setSheetOpen(true)
+    else if (delta > 55) setSheetOpen(false)
+  }
+
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 rounded-t-3xl z-20"
+      style={{
+        background: "white",
+        boxShadow: "0 -4px 32px rgba(13,10,26,0.12)",
+        height: liveH,
+        transition: isSnapping || !isDragging.current ? "height 0.32s cubic-bezier(0.32,0.72,0,1)" : "none",
+        overflow: "hidden",
+        touchAction: "none",
+      }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <button
+        className="w-full flex flex-col items-center pt-3 pb-2"
+        onClick={() => setSheetOpen(p => !p)}
+      >
+        <div
+          className="w-10 h-1 rounded-full transition-all duration-200"
+          style={{ background: sheetOpen ? C.primary : "#D8D4EE", opacity: sheetOpen ? 0.7 : 1 }}
+        />
+      </button>
+
+      <div className="px-5 flex items-center justify-between">
+        <p className="font-bold text-sm" style={{ color: C.ink }}>Nearby in Lagos</p>
+        {!sheetOpen && (
+          <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            {NEARBY_AREAS.slice(0, 3).map(a => (
+              <span key={a} className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0" style={{ background: "#F0ECFF", color: C.primary }}>
+                {a}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {sheetOpen && (
+        <div className="px-5 pt-3">
+          <div className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
+            {NEARBY_AREAS.map(a => (
+              <span key={a} className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 cursor-pointer" style={{ background: "#F0ECFF", color: C.primary }}>
+                {a}
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {QUICK_PLACES.map(p => (
+              <button
+                key={p.name}
+                onClick={() => {
+                  setSelectedDestination(p.name)
+                  setSearchQuery(p.name)
+                  setRideStatus("idle")
+                }}
+                className="flex flex-col items-start p-3 rounded-2xl flex-shrink-0 cursor-pointer"
+                style={{ background: "#F9F8FF", border: `1px solid ${C.border}`, minWidth: 130 }}
+              >
+                <span className="text-2xl mb-2">{p.emoji}</span>
+                <p className="text-sm font-bold text-left leading-tight" style={{ color: C.ink }}>{p.name}</p>
+                <p className="text-xs mt-0.5" style={{ color: C.muted }}>{p.area} · {p.eta}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function HomeScreen({
   selectedDestination,
@@ -591,62 +708,13 @@ function HomeScreen({
           </div>
         )
       ) : (
-        /* Liftable Bottom Sheet when no location selected */
-        <div
-          className="absolute bottom-0 left-0 right-0 rounded-t-3xl transition-all duration-350 z-20"
-          style={{ background: "white", boxShadow: "0 -4px 32px rgba(13,10,26,0.12)", height: sheetOpen ? 320 : 88 }}
-        >
-          <button
-            className="w-full flex flex-col items-center pt-3 pb-2"
-            onClick={() => setSheetOpen(p => !p)}
-          >
-            <div className="w-10 h-1 rounded-full" style={{ background: "#D8D4EE" }} />
-          </button>
-
-          <div className="px-5 flex items-center justify-between">
-            <p className="font-bold text-sm" style={{ color: C.ink }}>Nearby in Lagos</p>
-            {!sheetOpen && (
-              <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-                {NEARBY_AREAS.slice(0, 3).map(a => (
-                  <span key={a} className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0" style={{ background: "#F0ECFF", color: C.primary }}>
-                    {a}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {sheetOpen && (
-            <div className="px-5 pt-3">
-              <div className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
-                {NEARBY_AREAS.map(a => (
-                  <span key={a} className="px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 cursor-pointer" style={{ background: "#F0ECFF", color: C.primary }}>
-                    {a}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                {QUICK_PLACES.map(p => (
-                  <button
-                    key={p.name}
-                    onClick={() => {
-                      setSelectedDestination(p.name)
-                      setSearchQuery(p.name)
-                      setRideStatus("idle")
-                    }}
-                    className="flex flex-col items-start p-3 rounded-2xl flex-shrink-0 cursor-pointer"
-                    style={{ background: "#F9F8FF", border: `1px solid ${C.border}`, minWidth: 130 }}
-                  >
-                    <span className="text-2xl mb-2">{p.emoji}</span>
-                    <p className="text-sm font-bold text-left leading-tight" style={{ color: C.ink }}>{p.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: C.muted }}>{p.area} · {p.eta}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <NearbySheet
+          sheetOpen={sheetOpen}
+          setSheetOpen={setSheetOpen}
+          setSelectedDestination={setSelectedDestination}
+          setSearchQuery={setSearchQuery}
+          setRideStatus={setRideStatus}
+        />
       )}
     </div>
   )
@@ -2056,12 +2124,17 @@ function LoginScreen({ role, onLogin, onBack }: { role: "rider" | "driver", onLo
 // ─── Root ─────────────────────────────────────────────────────────────────────
 type AppPhase = "landing" | "loading_role" | "role_selection" | "loading_login" | "login" | "loading_main" | "main"
 
+// Tab order for direction detection
+const TAB_ORDER: NavTab[] = ["home", "places", "gifts", "profile"]
+
 export default function App() {
   const [appPhase, setAppPhase] = useState<AppPhase>("landing")
   const [authRole, setAuthRole] = useState<"rider" | "driver">("rider")
   const [screen, setScreen] = useState<Screen>("home")
   const [navTab, setNavTab] = useState<NavTab>("home")
   const [selectedDestination, setSelectedDestination] = useState<string>("")
+  const [tabDirection, setTabDirection] = useState<"left" | "right" | null>(null)
+  const [tabKey, setTabKey] = useState(0) // forces re-mount → re-trigger animation
 
   // Auto-advance loading states after realistic delays
   useEffect(() => {
@@ -2085,6 +2158,10 @@ export default function App() {
   }
 
   function handleNav(tab: NavTab) {
+    const prevIdx = TAB_ORDER.indexOf(navTab)
+    const nextIdx = TAB_ORDER.indexOf(tab)
+    setTabDirection(nextIdx > prevIdx ? "right" : "left")
+    setTabKey(k => k + 1)
     setNavTab(tab)
     if (tab === "home")    setScreen("home")
     if (tab === "places")  setScreen("locations")
@@ -2092,10 +2169,19 @@ export default function App() {
     if (tab === "profile") setScreen("profile")
   }
 
+  const slideClass = tabDirection === "right" ? "tab-enter-right" : tabDirection === "left" ? "tab-enter-left" : ""
+
   return (
     <div
-      className="w-full h-full flex flex-col overflow-hidden"
-      style={{ background: "#F0ECFF", fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 430, margin: "0 auto" }}
+      className="w-full flex flex-col overflow-hidden"
+      style={{
+        background: "#F0ECFF",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        maxWidth: 430,
+        margin: "0 auto",
+        height: "100dvh",
+        maxHeight: "100dvh",
+      }}
     >
       {appPhase === "landing" && <LandingScreen onGetStarted={() => setAppPhase("loading_role")} />}
 
@@ -2104,14 +2190,14 @@ export default function App() {
       {appPhase === "loading_main"    && <MainAppSkeleton />}
 
       {appPhase === "role_selection" && (
-        <div className="page-enter w-full h-full flex flex-col">
+        <div className="page-enter flex-1 flex flex-col min-h-0">
           <RoleSelectionScreen 
             onSelectRole={(r) => { setAuthRole(r); setAppPhase("loading_login"); }} 
           />
         </div>
       )}
       {appPhase === "login" && (
-        <div className="page-enter w-full h-full flex flex-col">
+        <div className="page-enter flex-1 flex flex-col min-h-0">
           <LoginScreen 
             role={authRole} 
             onLogin={() => setAppPhase("loading_main")} 
@@ -2122,28 +2208,30 @@ export default function App() {
       
       {appPhase === "main" && (
         <>
-          {screen === "home" && (
-            <HomeScreen
-              selectedDestination={selectedDestination}
-              setSelectedDestination={setSelectedDestination}
-            />
-          )}
-          {screen === "drivers" && (
-            <DriversScreen onBack={() => { setScreen("home"); setNavTab("home"); }} />
-          )}
-          {screen === "locations" && (
-            <LocationsScreen
-              onRideHere={(placeName: string) => {
-                setSelectedDestination(placeName)
-                setScreen("home")
-                setNavTab("home")
-              }}
-            />
-          )}
-          {screen === "gifts"     && <GiftsScreen />}
-          {screen === "profile"   && <ProfileScreen />}
+          <div key={tabKey} className={`flex-1 flex flex-col min-h-0 overflow-hidden ${slideClass}`}>
+            {screen === "home" && (
+              <HomeScreen
+                selectedDestination={selectedDestination}
+                setSelectedDestination={setSelectedDestination}
+              />
+            )}
+            {screen === "drivers" && (
+              <DriversScreen onBack={() => { setScreen("home"); setNavTab("home"); }} />
+            )}
+            {screen === "locations" && (
+              <LocationsScreen
+                onRideHere={(placeName: string) => {
+                  setSelectedDestination(placeName)
+                  setScreen("home")
+                  setNavTab("home")
+                }}
+              />
+            )}
+            {screen === "gifts"     && <GiftsScreen />}
+            {screen === "profile"   && <ProfileScreen />}
+          </div>
 
-          <div style={{ background: navBg[screen], zIndex: 50 }}>
+          <div className="flex-shrink-0 pb-safe" style={{ background: navBg[screen], zIndex: 50 }}>
             <BottomNav active={navTab} onChange={handleNav} />
           </div>
         </>
